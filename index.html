@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="ky">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta charset="utf-8">
+<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}</style>
+<title>Курандын кыргызча мааниси</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=PT+Serif:ital,wght@0,400;0,700;1,400&family=PT+Sans:wght@400;700&display=swap">
+<style>
+/* Layout: one narrow reading column; list of suras → sura page with ayah blocks (Arabic / Kyrgyz / Russian); audio bar docked at the bottom */
+@font-face{font-family:"Hafs";src:url("fonts/hafs.otf") format("opentype");font-display:swap}
+:root{
+  --bg:#eef2ef; --surface:#f8faf8; --ink:#16241f; --muted:#5d6d66; --line:#d3ddd7;
+  --green:#14463a; --gold:#a8833a; --gold-soft:#e9dfc6; --chip:#e1e9e4; --play:#14463a; --on-play:#f8faf8;
+  --f-ar:"Hafs","Amiri Quran","Scheherazade New",serif;
+  --f-text:"PT Serif",Georgia,"Times New Roman",serif;
+  --f-ui:"PT Sans","Segoe UI",system-ui,sans-serif;
+  --ar-size:28px; --tx-size:17px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0c1915; --surface:#12231e; --ink:#e9efe9; --muted:#97a9a1; --line:#24392f;
+  --green:#d6b46e; --gold:#d6b46e; --gold-soft:#2c3a2a; --chip:#1b2f28; --play:#d6b46e; --on-play:#0c1915; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0c1915; --surface:#12231e; --ink:#e9efe9; --muted:#97a9a1; --line:#24392f;
+  --green:#d6b46e; --gold:#d6b46e; --gold-soft:#2c3a2a; --chip:#1b2f28; --play:#d6b46e; --on-play:#0c1915; color-scheme:dark}
+html,body{background:var(--bg);color:var(--ink)}
+body{font-family:var(--f-ui);font-size:15px;line-height:1.5}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:720px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 48px}
+body.has-player .wrap{padding-block-end:120px}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+a{color:var(--green)}
+mark{background:var(--gold-soft);color:inherit;border-radius:3px;padding:0 1px}
+/* header */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line);margin:0 calc(-1*max(16px,env(safe-area-inset-left,0px)));padding:10px max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px))}
+.brand{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.brand h1{font-family:var(--f-text);font-size:20px;margin:0;color:var(--green);text-wrap:balance}
+.brand .ar{font-family:var(--f-ar);font-size:24px;color:var(--gold)}
+.search{margin-top:10px;width:100%;box-sizing:border-box;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;padding:10px 12px;font-size:16px}
+.hint{font-size:12px;color:var(--muted);margin-top:4px}
+/* home actions */
+.acts{display:grid;grid-template-columns:1fr;gap:8px;margin-top:16px}
+.cont{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border:1px solid var(--gold);border-radius:12px;background:var(--gold-soft);text-align:left;width:100%}
+.cont small,.sec small{display:block;color:var(--muted);font-size:12px;letter-spacing:.04em;text-transform:uppercase}
+.sec{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface);text-align:left;width:100%}
+.h3{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--gold);margin:22px 0 4px}
+/* list */
+.list{list-style:none;margin:8px 0 0;padding:0}
+.list li+li{border-top:1px solid var(--line)}
+.row{display:grid;grid-template-columns:44px 1fr auto;align-items:center;gap:12px;width:100%;padding:12px 2px;background:none;border:0;text-align:left}
+.num{width:36px;height:36px;display:grid;place-items:center;border:1.5px solid var(--gold);font-size:13px;font-variant-numeric:tabular-nums;color:var(--green);transform:rotate(45deg);border-radius:8px}
+.num span{transform:rotate(-45deg)}
+.nm{min-width:0}
+.nm b{font-family:var(--f-text);font-size:17px;font-weight:700}
+.nm small{display:block;color:var(--muted);font-size:13px}
+.arname{font-family:var(--f-ar);font-size:24px;color:var(--green);direction:rtl}
+/* text-search hits and saved */
+.hit{display:block;width:100%;text-align:left;background:none;border:0;padding:12px 2px}
+.hit .r{font-size:12px;color:var(--gold);letter-spacing:.04em;font-variant-numeric:tabular-nums}
+.hit .t{font-family:var(--f-text);font-size:15px;line-height:1.5;margin-top:2px}
+.hit .t.ru{color:var(--muted)}
+.svd{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:start}
+.svd .del{border:0;background:none;color:var(--muted);font-size:13px;padding:12px 4px}
+.muted{color:var(--muted)}
+/* sura page */
+.bar{display:flex;align-items:center;gap:10px}
+.back{border:0;background:var(--chip);border-radius:10px;padding:6px 12px}
+.bar h2{margin:0;font-family:var(--f-text);font-size:18px;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tools{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 12px;font-size:13px}
+.chip[aria-pressed="true"]{background:var(--green);border-color:var(--green);color:var(--bg)}
+.chip.listen{background:var(--play);border-color:var(--play);color:var(--on-play);font-weight:700}
+.head{text-align:center;padding:24px 0 8px}
+.head .big{font-family:var(--f-ar);font-size:44px;color:var(--green);line-height:1.6}
+.head .meta{color:var(--muted);font-size:13px;letter-spacing:.04em;text-transform:uppercase}
+.head .yt{display:inline-block;margin-top:10px;font-size:14px}
+.basm{font-family:var(--f-ar);font-size:calc(var(--ar-size) + 2px);text-align:center;color:var(--ink);padding:8px 0 16px;border-bottom:1px solid var(--line);scroll-margin-top:140px}
+.ayah{padding:18px 0;border-bottom:1px solid var(--line);scroll-margin-top:140px}
+.ayah.hl,.basm.now,.ayah.now{background:var(--gold-soft);box-shadow:0 0 0 8px var(--gold-soft)}
+.ayah .ar{font-family:var(--f-ar);font-size:var(--ar-size);line-height:2.1;direction:rtl;text-align:right}
+.ayah .kg{font-family:var(--f-text);font-size:var(--tx-size);line-height:1.6;margin-top:10px}
+.ayah .ru{font-family:var(--f-text);font-size:calc(var(--tx-size) - 1px);line-height:1.55;color:var(--muted);margin-top:8px}
+.ayah .lbl{font-family:var(--f-ui);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--gold);margin-right:6px}
+.ref{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--muted);margin-bottom:6px}
+.ref .id{flex:1;font-variant-numeric:tabular-nums}
+.ref button{border:0;background:none;color:var(--muted);font-size:13px;padding:4px 6px;border-radius:6px}
+.ref button.on{color:var(--gold)}
+.ref .pa{color:var(--green);font-weight:700}
+.nav{display:flex;justify-content:space-between;gap:12px;margin-top:24px}
+.nav button{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:10px 14px;flex:1}
+/* player */
+.player{position:fixed;left:0;right:0;bottom:0;z-index:8;background:var(--surface);border-top:1px solid var(--line);padding:8px max(16px,env(safe-area-inset-right,0px)) calc(8px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.player .in{max-width:720px;margin:0 auto;display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:center}
+.player .who{border:0;background:none;text-align:left;padding:0;min-width:0}
+.player .who b{display:block;font-family:var(--f-text);font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.player .who small{color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums}
+.player .ctl{display:flex;align-items:center;gap:4px}
+.player .ctl button{border:0;background:var(--chip);border-radius:999px;width:38px;height:38px;display:grid;place-items:center;font-size:14px}
+.player .ctl .pp{background:var(--play);color:var(--on-play);width:44px;height:44px;font-size:16px}
+.player .ctl .rep[aria-pressed="true"]{background:var(--gold);color:var(--on-play)}
+.player .prog{grid-column:1/-1;height:3px;background:var(--line);border-radius:2px;overflow:hidden}
+.player .prog i{display:block;height:100%;width:0;background:var(--gold)}
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:999px;font-size:13px;z-index:9}
+.err{padding:24px 0;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<div class="player" id="player" hidden>
+  <div class="in">
+    <button class="who" id="pwho" aria-label="Окулуп жаткан аятка өтүү"><b id="pname"></b><small id="pref"></small></button>
+    <div class="ctl">
+      <button id="pprev" aria-label="Мурунку аят">⏮</button>
+      <button class="pp" id="ppp" aria-label="Ойнотуу же токтотуу">▶</button>
+      <button id="pnext" aria-label="Кийинки аят">⏭</button>
+      <button class="rep" id="prep" aria-pressed="false" aria-label="Аятты кайталоо" title="Аятты кайталоо">↻</button>
+      <button id="pclose" aria-label="Жабуу">✕</button>
+    </div>
+    <div class="prog"><i id="pbar"></i></div>
+  </div>
+</div>
+<audio id="au" preload="none"></audio>
+<div class="toast" id="toast" hidden></div>
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script>
+const TG = window.Telegram && window.Telegram.WebApp;
+if (TG) { try { TG.ready(); TG.expand(); } catch(e){} }
+const $ = s => document.querySelector(s);
+const store = { get(k,d){ try{ const v=localStorage.getItem('qkg_'+k); return v===null?d:JSON.parse(v);}catch(e){return d;} },
+                set(k,v){ try{ localStorage.setItem('qkg_'+k,JSON.stringify(v)); }catch(e){} } };
+let INDEX = [], AUD = {}, cache = {}, SEARCH = null;
+const prefs = Object.assign({ar:true,kg:true,ru:true,size:0}, store.get('prefs',{}));
+let saved = store.get('saved',[]);
+function applySize(){ document.documentElement.style.setProperty('--ar-size',(28+prefs.size*3)+'px'); document.documentElement.style.setProperty('--tx-size',(17+prefs.size*1.5)+'px'); }
+applySize();
+const AN='٠١٢٣٤٥٦٧٨٩'; const arNum = n => String(n).split('').map(d=>AN[d]).join('');
+function esc(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function toast(t){ const el=$('#toast'); el.textContent=t; el.hidden=false; clearTimeout(toast._t); toast._t=setTimeout(()=>el.hidden=true,1800); }
+async function load(url){ if(cache[url]) return cache[url]; const r=await fetch(url); if(!r.ok) throw new Error(r.status); return cache[url]=await r.json(); }
+const ytLive = s => s.yt && (!s.yd || Date.now() >= Date.parse(s.yd));
+const hasAudio = n => !!AUD[n] && (AUD.have==='all' || (AUD.have||[]).includes(n));
+const isSaved = (n,a) => saved.some(x=>x.n===n && x.a===a);
+const norm = s => s.toLowerCase().replace(/ё/g,'е');
+
+/* ---------- home ---------- */
+function home(){
+  const last = store.get('last',null);
+  $('#app').innerHTML = `
+    <div class="top">
+      <div class="brand"><h1>Курандын кыргызча мааниси</h1><span class="ar">القرآن الكريم</span></div>
+      <input class="search" id="q" type="search" placeholder="Сүрө же сөз издөө: Бакара, 2:255, сабыр" autocomplete="off">
+      <div class="hint">Арабча текст · кыргызча жана орусча мааниси · Шейх Махер аль-Муайклинин окуусу</div>
+    </div>
+    <div class="acts">
+      ${last ? `<button class="cont" id="cont"><span><small>Окууну улантуу</small><b>${esc(last.name)} сүрөсү, ${last.a}-аят</b></span><span aria-hidden="true">→</span></button>` : ''}
+      <button class="sec" id="savedBtn"><span><small>Сакталган аяттар</small><b>${saved.length ? saved.length+' аят' : 'Азырынча бош'}</b></span><span aria-hidden="true">☆</span></button>
+    </div>
+    <div id="res"></div>`;
+  const q = $('#q');
+  let timer;
+  const render = async v => {
+    v=(v||'').trim(); const nv=norm(v);
+    const m = v.match(/^(\d{1,3})(?::(\d{1,3}))?$/);
+    const suras = INDEX.filter(s => !v || (m && String(s.n)===m[1]) || norm(s.kg).includes(nv) || s.ar.includes(v));
+    let html = `${v?`<div class="h3">Сүрөлөр</div>`:''}<ul class="list">${suras.map(s=>`<li><button class="row" data-n="${s.n}">
+      <span class="num"><span>${s.n}</span></span>
+      <span class="nm"><b>${esc(s.kg)}</b><small>${s.c} аят · ${s.t==='meccan'?'Меккеде':'Мадинада'} түшкөн${hasAudio(s.n)?' · ♪ аудио':''}${ytLive(s)?' · ▶ видео':''}</small></span>
+      <span class="arname">${s.ar}</span></button></li>`).join('') || (v.length<3?'<li class="err">Мындай сүрө табылган жок.</li>':'')}</ul>`;
+    if(v.length>=3 && !m){
+      html += `<div class="h3">Аяттардын маанисинен</div><div id="hits" class="muted">Изделүүдө…</div>`;
+      $('#res').innerHTML = html;
+      try{ if(!SEARCH) SEARCH = await load('data/search.json'); }catch(e){ $('#hits').textContent='Издөө үчүн маалымат жүктөлгөн жок. Интернетти текшериңиз.'; return; }
+      if(q.value.trim()!==v) return;
+      const hits=[]; for(const it of SEARCH){ const k=norm(it[2]).includes(nv), r=norm(it[3]).includes(nv); if(k||r){ hits.push([it,k]); if(hits.length>=60) break; } }
+      const total = hits.length>=60 ? '60+' : hits.length;
+      const mk = (t)=>{ const i=norm(t).indexOf(nv); if(i<0) return esc(t.slice(0,180))+(t.length>180?'…':''); const s=Math.max(0,i-70), e=Math.min(t.length,i+nv.length+110);
+        return (s?'…':'')+esc(t.slice(s,i))+'<mark>'+esc(t.slice(i,i+nv.length))+'</mark>'+esc(t.slice(i+nv.length,e))+(e<t.length?'…':''); };
+      $('#hits').className=''; $('#hits').innerHTML = hits.length ? `<div class="muted" style="font-size:13px">${total} аят табылды</div><ul class="list">${hits.map(([it,k])=>`<li><button class="hit" data-n="${it[0]}" data-a="${it[1]}">
+        <span class="r">${esc(INDEX[it[0]-1].kg)} ${it[0]}:${it[1]}</span><div class="t${k?'':' ru'}">${mk(k?it[2]:it[3])}</div></button></li>`).join('')}</ul>` : `<p class="muted">«${esc(v)}» сөзү котормодон табылган жок. Сөздүн уңгусун гана жазып көрүңүз, мисалы «сабыр».</p>`;
+    } else $('#res').innerHTML = html;
+  };
+  render('');
+  q.addEventListener('input', e=>{ clearTimeout(timer); timer=setTimeout(()=>render(e.target.value),250); });
+  q.addEventListener('keydown', e=>{ if(e.key==='Enter'){ const m=e.target.value.trim().match(/^(\d{1,3})(?::(\d{1,3}))?$/); if(m && +m[1]>=1 && +m[1]<=114) go(+m[1], m[2]?+m[2]:null); }});
+  $('#res').addEventListener('click', e=>{ const b=e.target.closest('.row'); if(b) return go(+b.dataset.n); const h=e.target.closest('.hit'); if(h) go(+h.dataset.n,+h.dataset.a); });
+  if(last) $('#cont').addEventListener('click',()=>go(last.n,last.a));
+  $('#savedBtn').addEventListener('click',()=>{ location.hash='saved'; });
+  if(TG && TG.BackButton) TG.BackButton.hide();
+  window.scrollTo(0,0);
+}
+
+/* ---------- saved ---------- */
+function savedView(){
+  $('#app').innerHTML = `
+    <div class="top"><div class="bar"><button class="back" id="back" aria-label="Башкы бетке кайтуу">←</button><h2>Сакталган аяттар</h2></div></div>
+    <div id="sv"></div>`;
+  const draw = ()=>{
+    $('#sv').innerHTML = saved.length ? `<ul class="list">${saved.slice().reverse().map(x=>`<li class="svd"><button class="hit" data-n="${x.n}" data-a="${x.a}">
+      <span class="r">${esc(x.name)} ${x.n}:${x.a}</span><div class="t">${esc(x.t)}</div></button>
+      <button class="del" data-n="${x.n}" data-a="${x.a}" aria-label="Тизмеден өчүрүү">Өчүрүү</button></li>`).join('')}</ul>`
+      : `<p class="err">Бул жерде сиз сактаган аяттар турат. Аяттын жанындагы ☆ белгисин басыңыз.</p>`;
+  };
+  draw();
+  $('#sv').addEventListener('click', e=>{
+    const d=e.target.closest('.del'); if(d){ saved=saved.filter(x=>!(x.n===+d.dataset.n && x.a===+d.dataset.a)); store.set('saved',saved); draw(); toast('Өчүрүлдү'); return; }
+    const h=e.target.closest('.hit'); if(h) go(+h.dataset.n,+h.dataset.a); });
+  $('#back').onclick=()=>{ location.hash=''; };
+  if(TG && TG.BackButton){ TG.BackButton.show(); TG.BackButton.onClick(()=>{ location.hash=''; }); }
+  window.scrollTo(0,0);
+}
+
+function go(n,a){ location.hash = a ? `s${n}-${a}` : `s${n}`; }
+
+/* ---------- sura ---------- */
+let VIEW = 0;
+async function sura(n, a){
+  VIEW = n;
+  $('#app').innerHTML = `<div class="err">Жүктөлүүдө…</div>`;
+  let d; try { d = await load(`data/s${n}.json`); } catch(e){ $('#app').innerHTML = `<div class="err">Сүрө жүктөлгөн жок. Интернетти текшерип, кайра ачыңыз.</div>`; return; }
+  const meta = INDEX[n-1] || {};
+  const au = hasAudio(n);
+  const chip = (k,l)=>`<button class="chip" data-k="${k}" aria-pressed="${prefs[k]}">${l}</button>`;
+  $('#app').innerHTML = `
+    <div class="top">
+      <div class="bar"><button class="back" id="back" aria-label="Тизмеге кайтуу">←</button><h2>${n}. ${esc(d.kg)}</h2></div>
+      <div class="tools">${au?`<button class="chip listen" id="listen">▶ Угуу</button>`:''}${chip('ar','Арабча')}${chip('kg','Кыргызча')}${chip('ru','Орусча')}
+        <button class="chip" id="smaller" aria-label="Тамганы кичирейтүү">A−</button><button class="chip" id="bigger" aria-label="Тамганы чоңойтуу">A+</button></div>
+    </div>
+    <div class="head"><div class="big">سُورَةُ ${d.ar}</div>
+      <div class="meta">${d.ayat.length} аят · ${meta.t==='meccan'?'Меккеде':'Мадинада'} түшкөн</div>
+      ${ytLive(meta)?`<a class="yt" href="${meta.yt}" target="_blank" rel="noopener">▶ Видеону YouTube'да көрүү</a>`:''}
+      ${!au?`<div class="hint">Бул сүрөнүн аудиосу жакында кошулат.</div>`:''}</div>
+    ${n!==1 && n!==9 ? `<div class="basm" id="ab" data-ar>بِسۡمِ ٱللَّهِ ٱلرَّحۡمَٰنِ ٱلرَّحِيمِ</div>`:''}
+    <div id="ayat">${d.ayat.map(([i,ar,kg,ru])=>`
+      <section class="ayah" id="a${i}" data-a="${i}">
+        <div class="ref"><span class="id">${n}:${i}</span>
+          ${au?`<button class="pa" data-play="${i}" aria-label="${i}-аятты угуу">▶</button>`:''}
+          <button data-save="${i}" class="${isSaved(n,i)?'on':''}" aria-label="Сактоо">${isSaved(n,i)?'★':'☆'}</button>
+          <button data-copy="${i}">Көчүрүү</button></div>
+        <div class="ar" data-ar>${ar} ${arNum(i)}</div>
+        <div class="kg" data-kg>${esc(kg)}</div>
+        <div class="ru" data-ru><span class="lbl">RU</span>${esc(ru)}</div>
+      </section>`).join('')}</div>
+    <div class="nav">${n>1?`<button id="prev">← ${n-1}. ${esc(INDEX[n-2].kg)}</button>`:'<span></span>'}${n<114?`<button id="next">${n+1}. ${esc(INDEX[n].kg)} →</button>`:''}</div>`;
+  const vis = ()=>['ar','kg','ru'].forEach(k=>document.querySelectorAll(`[data-${k}]`).forEach(el=>el.hidden=!prefs[k]));
+  vis();
+  document.querySelectorAll('.chip[data-k]').forEach(b=>b.addEventListener('click',()=>{
+    const k=b.dataset.k; if(prefs[k] && ['ar','kg','ru'].filter(x=>prefs[x]).length===1) return toast('Жок дегенде бир тил калсын');
+    prefs[k]=!prefs[k]; b.setAttribute('aria-pressed',prefs[k]); store.set('prefs',prefs); vis(); }));
+  $('#smaller').onclick=()=>{ prefs.size=Math.max(-2,prefs.size-1); applySize(); store.set('prefs',prefs); };
+  $('#bigger').onclick=()=>{ prefs.size=Math.min(4,prefs.size+1); applySize(); store.set('prefs',prefs); };
+  if(au) $('#listen').onclick=()=>{ if(P.n===n && !A.paused) { A.pause(); } else if(P.n===n && P.idx>=0) { A.play().catch(()=>{}); } else playFrom(n, n===1||n===9 ? 1 : 'b'); };
+  $('#back').onclick=()=>{ location.hash=''; };
+  if($('#prev')) $('#prev').onclick=()=>go(n-1);
+  if($('#next')) $('#next').onclick=()=>go(n+1);
+  $('#ayat').addEventListener('click', async e=>{
+    const p=e.target.closest('[data-play]'); if(p) return playFrom(n,+p.dataset.play);
+    const s=e.target.closest('[data-save]'); if(s){ const i=+s.dataset.save;
+      if(isSaved(n,i)){ saved=saved.filter(x=>!(x.n===n&&x.a===i)); s.textContent='☆'; s.classList.remove('on'); toast('Сакталгандардан алынды'); }
+      else { const kg=d.ayat[i-1][2]; saved.push({n,a:i,name:d.kg,t:kg.length>160?kg.slice(0,160)+'…':kg}); s.textContent='★'; s.classList.add('on'); toast('Сакталды'); }
+      store.set('saved',saved); return; }
+    const b=e.target.closest('[data-copy]'); if(!b) return;
+    const [i,ar,kg,ru]=d.ayat[+b.dataset.copy-1]; const t=`${ar}\n\n${kg}\n\n${ru}\n\n— ${d.kg} сүрөсү, ${n}:${i}`;
+    try{ await navigator.clipboard.writeText(t); toast('Көчүрүлдү'); }catch(err){ toast('Көчүрүү мүмкүн болгон жок'); } });
+  if(TG && TG.BackButton){ TG.BackButton.show(); TG.BackButton.onClick(()=>{ location.hash=''; }); }
+  const io = new IntersectionObserver(es=>{ es.forEach(en=>{ if(en.isIntersecting) store.set('last',{n,a:+en.target.dataset.a,name:d.kg}); }); },{rootMargin:'-40% 0px -55% 0px'});
+  document.querySelectorAll('.ayah').forEach(s=>io.observe(s));
+  if(a && document.getElementById('a'+a)){ const el=document.getElementById('a'+a); el.classList.add('hl'); el.scrollIntoView(); setTimeout(()=>el.classList.remove('hl'),2500); }
+  else window.scrollTo(0,0);
+  markNow(false);
+}
+
+/* ---------- audio player ---------- */
+const A = $('#au');
+const P = { n:0, idx:-1, rep:false };   // idx = index into AUD[n].u
+function unitEl(n,u){ if(VIEW!==n) return null; return u==='b' ? document.getElementById('ab') : document.getElementById('a'+u); }
+function markNow(scroll){
+  document.querySelectorAll('.now').forEach(e=>e.classList.remove('now'));
+  document.querySelectorAll('.pa').forEach(b=>b.textContent='▶');
+  const L=$('#listen'); if(L) L.textContent = (P.n===VIEW && !A.paused) ? '❚❚ Токтотуу' : '▶ Угуу';
+  if(!P.n || P.idx<0) return;
+  const u=AUD[P.n].u[P.idx]; const el=unitEl(P.n,u); if(!el) return;
+  el.classList.add('now'); if(!A.paused){ const b=el.querySelector('.pa'); if(b) b.textContent='❚❚'; }
+  if(scroll){ const r=el.getBoundingClientRect(); if(r.top<130 || r.bottom>innerHeight-110) el.scrollIntoView({block:'center',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'}); }
+}
+function updBar(){
+  if(!P.n) return; const T=AUD[P.n]; const u=T.u[P.idx];
+  $('#pname').textContent = `${INDEX[P.n-1].kg} сүрөсү`;
+  $('#pref').textContent = u==='b' ? 'Бисмилла' : `${P.n}:${u} · ${T.u.filter(x=>x!=='b').length} аяттын ичинен`;
+  $('#ppp').textContent = A.paused ? '▶' : '❚❚';
+  $('#pbar').style.width = (100*A.currentTime/T.end).toFixed(2)+'%';
+  if('mediaSession' in navigator){ try{ navigator.mediaSession.metadata=new MediaMetadata({title:`${INDEX[P.n-1].kg} ${u==='b'?'':P.n+':'+u}`,artist:'Шейх Махер аль-Муайкли',album:'Курандын кыргызча мааниси'}); }catch(e){} }
+}
+function playFrom(n,u){
+  const T=AUD[n]; let idx=T.u.indexOf(u); if(idx<0) idx=0;
+  if(P.n!==n){ A.src=`audio/${String(n).padStart(3,'0')}.mp4`; P.n=n; }
+  // same ayah while playing → toggle pause
+  else if(P.idx===idx && !A.paused){ A.pause(); return; }
+  P.idx=idx; document.body.classList.add('has-player'); $('#player').hidden=false;
+  const seek=()=>{ try{ A.currentTime=T.o[idx]+0.01; }catch(e){} A.play().catch(()=>toast('Аудио ачылган жок. Интернетти текшериңиз.')); };
+  if(A.readyState>=1) seek(); else { A.addEventListener('loadedmetadata',seek,{once:true}); A.load(); }
+  updBar(); markNow(true);
+}
+A.addEventListener('timeupdate',()=>{
+  if(!P.n) return; const T=AUD[P.n]; const t=A.currentTime;
+  if(P.rep && P.idx>=0){ const endU = P.idx+1<T.u.length ? T.o[P.idx+1] : T.end; if(t>=endU-0.05){ A.currentTime=T.o[P.idx]+0.01; return; } }
+  let i=P.idx<0?0:P.idx; while(i+1<T.u.length && t>=T.o[i+1]) i++; while(i>0 && t<T.o[i]) i--;
+  if(i!==P.idx){ P.idx=i; markNow(true); }
+  updBar();
+});
+A.addEventListener('play',()=>{ updBar(); markNow(false); });
+A.addEventListener('pause',()=>{ updBar(); markNow(false); });
+A.addEventListener('ended',()=>{ toast('Сүрө бүттү'); updBar(); markNow(false); });
+A.addEventListener('error',()=>{ if(P.n) toast('Аудио жүктөлгөн жок'); });
+$('#ppp').onclick=()=>{ if(A.paused) A.play().catch(()=>{}); else A.pause(); };
+$('#pprev').onclick=()=>{ if(!P.n) return; const T=AUD[P.n]; const i=Math.max(0,P.idx-1); P.idx=i; A.currentTime=T.o[i]+0.01; markNow(true); updBar(); };
+$('#pnext').onclick=()=>{ if(!P.n) return; const T=AUD[P.n]; const i=Math.min(T.u.length-1,P.idx+1); P.idx=i; A.currentTime=T.o[i]+0.01; markNow(true); updBar(); };
+$('#prep').onclick=()=>{ P.rep=!P.rep; $('#prep').setAttribute('aria-pressed',P.rep); toast(P.rep?'Аят кайталанат':'Кайталоо өчүрүлдү'); };
+$('#pclose').onclick=()=>{ A.pause(); P.n=0; P.idx=-1; A.removeAttribute('src'); $('#player').hidden=true; document.body.classList.remove('has-player'); markNow(false); };
+$('#pwho').onclick=()=>{ if(!P.n) return; const u=AUD[P.n].u[P.idx]; if(VIEW===P.n && location.hash.startsWith('#s')){ markNow(true); const el=unitEl(P.n,u); if(el) el.scrollIntoView({block:'center'}); } else go(P.n, u==='b'?null:u); };
+if('mediaSession' in navigator){ try{
+  navigator.mediaSession.setActionHandler('previoustrack',()=>$('#pprev').click());
+  navigator.mediaSession.setActionHandler('nexttrack',()=>$('#pnext').click()); }catch(e){} }
+
+/* ---------- routing ---------- */
+function route(){
+  const h=location.hash;
+  if(h==='#saved'){ VIEW=0; return savedView(); }
+  const m=h.match(/^#s(\d{1,3})(?:-(\d{1,3}))?$/);
+  if(m && +m[1]>=1 && +m[1]<=114) sura(+m[1], m[2]?+m[2]:null); else { VIEW=0; home(); }
+}
+window.addEventListener('hashchange', route);
+Promise.all([load('data/index.json'), load('data/audio.json').catch(()=>({}))]).then(([i,au])=>{ INDEX=i; AUD=au; route(); })
+  .catch(()=>{ $('#app').innerHTML='<div class="err">Маалымат жүктөлгөн жок. Барагыңызды кайра ачыңыз.</div>'; });
+</script>
+
+</body>
+</html>
