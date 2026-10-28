@@ -278,7 +278,9 @@ async function sura(n, a){
 
 /* ---------- audio player ---------- */
 const A = $('#au');
-const P = { n:0, idx:-1, rep:false };   // idx = index into AUD[n].u
+const P = { n:0, idx:-1, rep:false, part:-1 };   // idx = index into AUD[n].u; part = index into parts
+const partsOf = n => AUD[n].p || [[String(n).padStart(3,'0')+'.mp4',0,0]];
+const gTime = () => P.n && P.part>=0 ? partsOf(P.n)[P.part][2] + A.currentTime : 0;
 function unitEl(n,u){ if(VIEW!==n) return null; return u==='b' ? document.getElementById('ab') : document.getElementById('a'+u); }
 function markNow(scroll){
   document.querySelectorAll('.now').forEach(e=>e.classList.remove('now'));
@@ -294,35 +296,45 @@ function updBar(){
   $('#pname').textContent = `${INDEX[P.n-1].kg} сүрөсү`;
   $('#pref').textContent = u==='b' ? 'Бисмилла' : `${P.n}:${u} · ${T.u.filter(x=>x!=='b').length} аяттын ичинен`;
   $('#ppp').textContent = A.paused ? '▶' : '❚❚';
-  $('#pbar').style.width = (100*A.currentTime/T.end).toFixed(2)+'%';
+  $('#pbar').style.width = (100*gTime()/T.end).toFixed(2)+'%';
   if('mediaSession' in navigator){ try{ navigator.mediaSession.metadata=new MediaMetadata({title:`${INDEX[P.n-1].kg} ${u==='b'?'':P.n+':'+u}`,artist:'Шейх Махер аль-Муайкли',album:'Курандын кыргызча мааниси'}); }catch(e){} }
+}
+// load the part holding unit idx and seek there (play=true starts playback)
+function seekUnit(idx, play){
+  const T=AUD[P.n], ps=partsOf(P.n); let k=0; while(k+1<ps.length && ps[k+1][1]<=idx) k++;
+  P.idx=idx;
+  const go=()=>{ try{ A.currentTime=Math.max(0,T.o[idx]-ps[k][2])+0.01; }catch(e){} if(play) A.play().catch(()=>toast('Аудио ачылган жок. Интернетти текшериңиз.')); };
+  if(P.part!==k){ P.part=k; A.src='audio/'+ps[k][0]; A.addEventListener('loadedmetadata',go,{once:true}); A.load(); }
+  else if(A.readyState>=1) go(); else A.addEventListener('loadedmetadata',go,{once:true});
+  updBar(); markNow(true);
 }
 function playFrom(n,u){
   const T=AUD[n]; let idx=T.u.indexOf(u); if(idx<0) idx=0;
-  if(P.n!==n){ A.src=`audio/${String(n).padStart(3,'0')}.mp4`; P.n=n; }
-  // same ayah while playing → toggle pause
-  else if(P.idx===idx && !A.paused){ A.pause(); return; }
-  P.idx=idx; document.body.classList.add('has-player'); $('#player').hidden=false;
-  const seek=()=>{ try{ A.currentTime=T.o[idx]+0.01; }catch(e){} A.play().catch(()=>toast('Аудио ачылган жок. Интернетти текшериңиз.')); };
-  if(A.readyState>=1) seek(); else { A.addEventListener('loadedmetadata',seek,{once:true}); A.load(); }
-  updBar(); markNow(true);
+  if(P.n===n && P.idx===idx && !A.paused){ A.pause(); return; }
+  if(P.n!==n){ P.n=n; P.part=-1; }
+  document.body.classList.add('has-player'); $('#player').hidden=false;
+  seekUnit(idx,true);
 }
 A.addEventListener('timeupdate',()=>{
-  if(!P.n) return; const T=AUD[P.n]; const t=A.currentTime;
-  if(P.rep && P.idx>=0){ const endU = P.idx+1<T.u.length ? T.o[P.idx+1] : T.end; if(t>=endU-0.05){ A.currentTime=T.o[P.idx]+0.01; return; } }
+  if(!P.n || P.part<0) return; const T=AUD[P.n]; const t=gTime();
+  if(P.rep && P.idx>=0){ const endU = P.idx+1<T.u.length ? T.o[P.idx+1] : T.end; if(t>=endU-0.05){ seekUnit(P.idx,true); return; } }
   let i=P.idx<0?0:P.idx; while(i+1<T.u.length && t>=T.o[i+1]) i++; while(i>0 && t<T.o[i]) i--;
   if(i!==P.idx){ P.idx=i; markNow(true); }
   updBar();
 });
 A.addEventListener('play',()=>{ updBar(); markNow(false); });
 A.addEventListener('pause',()=>{ updBar(); markNow(false); });
-A.addEventListener('ended',()=>{ toast('Сүрө бүттү'); updBar(); markNow(false); });
+A.addEventListener('ended',()=>{
+  if(!P.n) return; const ps=partsOf(P.n);
+  if(P.rep && P.idx>=0) return seekUnit(P.idx,true);
+  if(P.part+1<ps.length) return seekUnit(ps[P.part+1][1],true);
+  toast('Сүрө бүттү'); updBar(); markNow(false); });
 A.addEventListener('error',()=>{ if(P.n) toast('Аудио жүктөлгөн жок'); });
 $('#ppp').onclick=()=>{ if(A.paused) A.play().catch(()=>{}); else A.pause(); };
-$('#pprev').onclick=()=>{ if(!P.n) return; const T=AUD[P.n]; const i=Math.max(0,P.idx-1); P.idx=i; A.currentTime=T.o[i]+0.01; markNow(true); updBar(); };
-$('#pnext').onclick=()=>{ if(!P.n) return; const T=AUD[P.n]; const i=Math.min(T.u.length-1,P.idx+1); P.idx=i; A.currentTime=T.o[i]+0.01; markNow(true); updBar(); };
+$('#pprev').onclick=()=>{ if(!P.n) return; seekUnit(Math.max(0,P.idx-1),!A.paused); };
+$('#pnext').onclick=()=>{ if(!P.n) return; seekUnit(Math.min(AUD[P.n].u.length-1,P.idx+1),!A.paused); };
 $('#prep').onclick=()=>{ P.rep=!P.rep; $('#prep').setAttribute('aria-pressed',P.rep); toast(P.rep?'Аят кайталанат':'Кайталоо өчүрүлдү'); };
-$('#pclose').onclick=()=>{ A.pause(); P.n=0; P.idx=-1; A.removeAttribute('src'); $('#player').hidden=true; document.body.classList.remove('has-player'); markNow(false); };
+$('#pclose').onclick=()=>{ A.pause(); P.n=0; P.idx=-1; P.part=-1; A.removeAttribute('src'); $('#player').hidden=true; document.body.classList.remove('has-player'); markNow(false); };
 $('#pwho').onclick=()=>{ if(!P.n) return; const u=AUD[P.n].u[P.idx]; if(VIEW===P.n && location.hash.startsWith('#s')){ markNow(true); const el=unitEl(P.n,u); if(el) el.scrollIntoView({block:'center'}); } else go(P.n, u==='b'?null:u); };
 if('mediaSession' in navigator){ try{
   navigator.mediaSession.setActionHandler('previoustrack',()=>$('#pprev').click());
