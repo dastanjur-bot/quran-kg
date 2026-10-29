@@ -1,0 +1,35 @@
+name: Daily ayah
+on:
+  schedule:
+    - cron: '0 1 * * *'   # 01:00 UTC = 07:00 Bishkek, 04:00 Madinah
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'daily = today ayah, promo = app post with button, test = only render'
+        default: 'test'
+        type: choice
+        options: [test, daily, promo]
+permissions:
+  contents: write
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y libraqm0
+      - run: pip install pillow requests
+      - run: python tools/daily.py
+        env:
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          MODE: ${{ github.event.inputs.mode || 'daily' }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: images
+          path: out/
+      - name: keep schedule alive
+        if: github.event_name == 'schedule'
+        run: |
+          date -u > last_post.txt
+          git config user.name "quran-kgz-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add last_post.txt && git commit -m "daily ayah $(date -u +%F)" && git push || true
