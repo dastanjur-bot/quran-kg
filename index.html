@@ -342,7 +342,12 @@ if('mediaSession' in navigator){ try{
 
 /* ---------- routing ---------- */
 // Telegram start_param from links like t.me/quran_kgz_bot?startapp=s2-255
-(function(){ try{ const sp=TG && TG.initDataUnsafe && TG.initDataUnsafe.start_param; if(sp && /^s\d{1,3}(-\d{1,3})?$/.test(sp) && !location.hash) history.replaceState(null,'','#'+sp); }catch(e){} })();
+(function(){ try{
+  let sp=(TG && TG.initDataUnsafe && TG.initDataUnsafe.start_param) || new URLSearchParams(location.search).get('tgWebAppStartParam') || '';
+  const telegramHash=/^#tgWebApp/.test(location.hash);
+  if(sp && /^s\d{1,3}(-\d{1,3})?$/.test(sp) && (!location.hash || telegramHash)) history.replaceState(null,'',location.pathname+location.search+'#'+sp);
+  else if(telegramHash) history.replaceState(null,'',location.pathname+location.search);
+}catch(e){} })();
 function route(){
   const h=location.hash;
   if(h==='#saved'){ VIEW=0; return savedView(); }
